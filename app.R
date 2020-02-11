@@ -161,7 +161,7 @@ server <- function(input, output, session) {
     )
     data$dtm2 <- tokens(data$ira,what = "word",remove_numbers = T,
                         remove_punct = T)
-    data$dtm1 <- tokens_remove(data$dtm1 , "\\p{Z}", valuetype = "regex")
+    data$dtm1 <- tokens_remove(data$dtm2 , "\\p{Z}", valuetype = "regex")
     data$dtm <- dfm(data$dtm1, remove = stopwords("en"), tolower = TRUE, remove_punct = T,remove_numbers = T,remove_separators = TRUE)
     data$dtm <- dfm_wordstem(data$dtm, language = "english")
     data$dtm <- dfm_trim(data$dtm,min_termfreq = 20)
