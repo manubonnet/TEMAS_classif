@@ -10,6 +10,7 @@
 
 #remotes::install_github("juba/rainette",dependencies = T)
 #install.packages("tidyr")
+
 library(shiny)
 library(rainette,attach.required = T)
 library(quanteda)
@@ -100,6 +101,7 @@ ui <- fluidPage(
   ))
 
 server <- function(input, output, session) {
+  
   # get_groups <- function(res) {
   #   groups <- purrr::imap_dfc(res$uce_groups, ~ paste(.y, .x, sep="."))
   #   colnames(groups) <- seq_along(groups)
@@ -157,7 +159,7 @@ server <- function(input, output, session) {
       closeOnClickOutside = F,
       type = "warning"
     )
-    data$dtm <- dfm(data$ira, remove = stopwords("en"), tolower = TRUE, remove_punct = TRUE,remove_numbers = TRUE,remove_separators = TRUE)
+    data$dtm <- dfm(data$ira, remove = stopwords("en"), tolower = TRUE, remove_punct = F,remove_numbers = F,remove_separators = TRUE)
     data$dtm <- dfm_wordstem(data$dtm, language = "english")
     data$dtm <- dfm_trim(data$dtm,min_termfreq = 20)
     
