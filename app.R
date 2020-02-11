@@ -159,7 +159,7 @@ server <- function(input, output, session) {
       closeOnClickOutside = F,
       type = "warning"
     )
-    data$dtm <- dfm(data$ira, remove = stopwords("en"), tolower = TRUE, remove_punct = F,remove_numbers = F,remove_separators = TRUE)
+    data$dtm <- dfm(data$ira, remove = stopwords("en"), tolower = TRUE, remove_punct = T,remove_numbers = T,remove_separators = F)
     data$dtm <- dfm_wordstem(data$dtm, language = "english")
     data$dtm <- dfm_trim(data$dtm,min_termfreq = 20)
     
