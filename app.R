@@ -100,11 +100,11 @@ ui <- fluidPage(
   ))
 
 server <- function(input, output, session) {
-  get_groups <- function(res) {
-    groups <- purrr::imap_dfc(res$uce_groups, ~ paste(.y, .x, sep="."))
-    colnames(groups) <- seq_along(groups)
-    return(groups)
-  }
+  # get_groups <- function(res) {
+  #   groups <- purrr::imap_dfc(res$uce_groups, ~ paste(.y, .x, sep="."))
+  #   colnames(groups) <- seq_along(groups)
+  #   return(groups)
+  # }
   abcd = reactiveValues()
   abcd <- "Waiting..."
   data = reactiveValues()
