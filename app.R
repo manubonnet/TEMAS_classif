@@ -223,6 +223,14 @@ server <- function(input, output, session) {
       })
     })
     observeEvent(input$extract, {
+      sendSweetAlert(
+        session = session,
+        btn_labels = NA,
+        title = "Extraction in progress...",
+        text = "Please wait until \"Done !\" appears on your screen.",
+        closeOnClickOutside = F,
+        type = "warning"
+      )
       groups <- cutree_rainette2(res, k = input$k)
       bons <- which(groups[-length(groups)]==input$in2)
       data$table_bon_group <- data$table[bons,]
@@ -243,6 +251,12 @@ server <- function(input, output, session) {
       data_final <- subset(data$table_bon_group,data$table_bon_group$F)
       data_final <- data_final[,1:2]
       output$table2 <- renderTable(data_final)
+      sendSweetAlert(
+        session = session,
+        title = "Done !",
+        text = "Extraction complete !",
+        type = "success"
+      )  
       date_jour <- str_sub(date(),start = 9,end = 10)
       date_mois <- str_sub(date(),start = 5,end = 7)
       date_annee <- str_sub(date(),start = 21,end = 24)
