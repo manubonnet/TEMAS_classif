@@ -166,7 +166,7 @@ server <- function(input, output, session) {
     data$dtm <- dfm_wordstem(data$dtm, language = "english")
     data$dtm <- dfm_trim(data$dtm,min_termfreq = 20)
     
-    data$res <- rainette2(data$dtm, uc_size1 = 10, uc_size2 = 15, max_k = 6, min_members = 10)
+    data$res <- rainette2(data$dtm, uc_size1 = 10, uc_size2 = 15, max_k = 6, min_members = 50)
     res = reactiveValues()
     res <- data$res
     dtm = reactiveValues()
