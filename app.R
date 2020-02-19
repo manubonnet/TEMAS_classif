@@ -262,7 +262,7 @@ server <- function(input, output, session) {
       date_annee <- str_sub(date(),start = 21,end = 24)
       date_heure <- str_c(str_sub(date(),start = 12,end = 13),"h", str_sub(date(),start = 15,end = 16))
       
-      name_id <- str_c("shiny.classif_",date_jour,"_",date_mois, "_" , date_annee,"_" ,date_heure,".csv")
+      name_id <- str_c("shiny.classif_",memory[1],"_",date_jour,"_",date_mois, "_" , date_annee,"_" ,date_heure,".csv")
       output$nb_articles <- renderPrint(nrow(data_final))
       output$downloadData <- downloadHandler(
         filename = function() {
