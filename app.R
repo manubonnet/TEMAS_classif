@@ -248,8 +248,10 @@ server <- function(input, output, session) {
           if (data$table_bon_group[j,(i+2)]){data$table_bon_group[j,(length(input$in6)+3)] <- T}
         }
       }
-      data_final <- subset(data$table_bon_group,data$table_bon_group$F)
-      data_final <- data_final[,1:2]
+      data_final2 <- subset(data$table_bon_group,data$table_bon_group$F)
+      data_final2 <- data_final2[,1:2]
+      
+      data_final <- cbind(str_split(data_final2[,2], "---", simplify = TRUE))
       output$table2 <- renderTable(data_final)
       sendSweetAlert(
         session = session,
