@@ -50,22 +50,47 @@ ui <- fluidPage(
   # Sidebar with a slider input for number of bins 
   sidebarLayout(
     sidebarPanel(
+
       # Input: Select a file ----
-      h3("Step1: import data"),
-      fileInput("file1", "Choose File",
-                multiple = FALSE,
-                accept = c("text/csv",
-                           "text/comma-separated-values,text/plain",
-                           ".csv")),
-      # Input: Select number of rows to display ----
-      actionButton(inputId = "sauve", label = "Save data"),
-      conditionalPanel("input.sauve",
+      conditionalPanel("output.selected == '1'",
+                       fluidRow(
+                         column(10,h3("Step1: Import data")),
+                         column(1,actionButton("re_1h", "",icon = icon("angle-double-up")),align="right")
+                       ),
+                       fileInput("file1", "Choose File",
+                                 multiple = FALSE,
+                                 accept = c("text/csv",
+                                            "text/comma-separated-values,text/plain",
+                                            ".csv")),
+                       # Input: Select number of rows to display ----
+                       actionButton(inputId = "sauve", label = "Save data")),
+      conditionalPanel("output.selected == '1bis'",
+                       fluidRow(
+                         column(10,h3("Step1: Import data")),
+                         column(1,actionButton("re_1", "",icon = icon("angle-double-down")),align="right")
+                       )
+      ),
+      conditionalPanel("input.sauve & output.re_2 == '2'",                 
                        hr(),
-                       h3("Step2: Classification"),
-                       actionButton(inputId = "test", label = "compute classificaction")),
-      conditionalPanel("input.test",
+                       fluidRow(
+                         column(10,h3("Step2: Classification")),
+                         column(1,actionButton("re_2h", "",icon = icon("angle-double-up")),align="right")
+                       ),
+                       actionButton(inputId = "test", label = "compute classificaction")
+      ),
+      conditionalPanel("output.re_2 == '2bis'",                 
                        hr(),
-                       h3("Step3: Classification parameters"),
+                       fluidRow(
+                         column(10,h3("Step2: Classification")),
+                         column(1,actionButton("re_2", "",icon = icon("angle-double-down")))
+                       )
+      ),
+      conditionalPanel("input.test && output.re_3 == '3'",
+                       hr(),
+                       fluidRow(
+                         column(10,h3("Step3: Classification parameters")),
+                         column(1,actionButton("re_3h", "",icon = icon("angle-double-up")),align="right")
+                       ),
                        # Horizontal line ----
                        sliderInput("k", label = "Number of clusters", 
                                    value = 4,
@@ -76,32 +101,95 @@ ui <- fluidPage(
                        checkboxInput("same_scales", label = "Force same scales", value = TRUE),
                        sliderInput("text_size", label = "Text size", value = 13, min = 6, max = 20, step = 1),
                        actionButton(inputId = "param", label = "Valid number of clusters"),
-                       downloadButton("downloadPlot","Download graph"),
-                       conditionalPanel("input.param",
-                                        hr(),
-                                        h3("Step 4: Class and term selection"),
-                                        selectInput('in2', 'Select a class', class_nb, selectize=FALSE),
-                                        selectInput('in6', 'Select word(s)', abcd, multiple=TRUE, selectize=TRUE),
-                                        actionButton(inputId = "extract", label = "Extraction"),
-                                        conditionalPanel("input.extract",
-                                                         hr(),
-                                                         h3("Step 5:Download extracted database"),
-                                                         h5("Number of articles extrated"),
-                                                         textOutput("nb_articles"),
-                                                         downloadButton("downloadData", "Download data") 
-                                        ),           
+                       downloadButton("downloadPlot","Download graph")
+      ),
+      conditionalPanel("output.re_3 == '3bis'",
+                       hr(),
+                       fluidRow(
+                         column(10,h3("Step3: Classification parameters")),
+                         column(1,actionButton("re_3", "",icon = icon("angle-double-down")),align="right")
+                       )
+      ),
+      conditionalPanel("input.param && output.re_4 == '4'",
+                       hr(),
+                       fluidRow(
+                         column(10,h3("Step 4: Class and term selection")),
+                         column(1,actionButton("re_4h", "",icon = icon("angle-double-up")),align="right")
                        ),
-                       
-      )
+                       selectInput('in2', 'Select a class', class_nb, selectize=FALSE),
+                       radioButtons("radio", label = h3("Risk factor type"),
+                                    choices = list("Single-word risk factor (e.g. breastfeeding)" = 1, "Multiple-words risk factor (e.g. oral contaceptive)" = 2), 
+                                    selected = 1),
+                       conditionalPanel("input.radio==1",
+                                        selectInput('in6', 'Select word(s)', abcd, multiple=TRUE, selectize=TRUE)),
+                       conditionalPanel("input.radio==2",
+                                        selectInput('in7', 'Main word (e.g. contraceptive)', c(Choose='', abcd) , multiple=F, selectize=TRUE),
+                                        textInput("txt_comp", 'Complementary word (e.g. oral)', value = "", width = NULL,
+                                                  placeholder = NULL),
+                                        sliderInput("term_dist", label = "Maximum distance between Main and Complementary words \n (in number of characters)", value = 25, min = 5, max = 50, step = 5)),
+                       actionButton(inputId = "extract", label = "Extraction")
+      ),
+      conditionalPanel("output.re_4 == '4bis'",
+                       hr(),
+                       fluidRow(
+                         column(10,h3("Step 4: Class and term selection")),
+                         column(1,actionButton("re_4", "",icon = icon("angle-double-down")),align="right")
+                       )
+                       ),
+      conditionalPanel("input.extract",
+                       hr(),
+                       h3("Step 5:Download extracted database"),
+                       h5("Number of articles extrated"),
+                       textOutput("nb_articles"),
+                       downloadButton("downloadData", "Download data") 
+      ),           
+      
+      
+      
     ),
     mainPanel(
-      plotOutput("rainette_plot", height = "1000px"),
+      plotOutput("rainette_plot", height = "800px",width = "auto"),
       tableOutput("table2")
     )
   ))
 
 server <- function(input, output, session) {
   
+  output$selected <- renderText('1')
+  outputOptions(output, "selected", suspendWhenHidden = FALSE)
+  observeEvent(input$re_1,{
+    output$selected <- renderText('1')
+  })
+  observeEvent(input$re_1h,{
+    output$selected <- renderText('1bis')
+  })
+  output$re_2 <- renderText('2')
+  outputOptions(output, "re_2", suspendWhenHidden = FALSE)
+  observeEvent(input$re_2,{
+    output$re_2 <- renderText('2')
+  })
+  observeEvent(input$re_2h,{
+    output$re_2 <- renderText('2bis')
+  })
+  output$re_3 <- renderText('3')
+  outputOptions(output, "re_3", suspendWhenHidden = FALSE)
+  observeEvent(input$re_3,{
+    output$re_3 <- renderText('3')
+  })
+  observeEvent(input$re_3h,{
+    output$re_3 <- renderText('3bis')
+  })
+  
+  output$re_4 <- renderText('4')
+  outputOptions(output, "re_4", suspendWhenHidden = FALSE)
+  observeEvent(input$re_4,{
+    output$re_4 <- renderText('4')
+  })
+  observeEvent(input$re_4h,{
+    output$re_4 <- renderText('4bis')
+  })
+  
+  output$v<- renderImage(list(src = "images/Icon-V3.png",contentType = "image/png",alt="Done!"),deleteFile=FALSE)
   # get_groups <- function(res) {
   #   groups <- purrr::imap_dfc(res$uce_groups, ~ paste(.y, .x, sep="."))
   #   colnames(groups) <- seq_along(groups)
@@ -112,7 +200,11 @@ server <- function(input, output, session) {
   data = reactiveValues()
   cond1 = reactiveValues()
   cond1 <- F
+  cond2 = reactiveValues()
+  cond2 <- 0
+  
   observeEvent(input$sauve, {
+    output$selected <- renderText('1bis')
     sendSweetAlert(
       session = session,
       btn_labels = NA,
@@ -151,6 +243,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$test, {
+    output$re_2 <- renderText('2bis')
     sendSweetAlert(
       session = session,
       btn_labels = NA,
@@ -194,6 +287,7 @@ server <- function(input, output, session) {
     )
     # 
     observeEvent(input$param, {
+      output$re_3 <- renderText('3bis')
       groups <- reactive({cutree_rainette2(res, k = input$k)})
       range <- reactive({seq(1,input$k,1)})
       updateSelectInput(session,"in2",choices = range())
@@ -220,9 +314,11 @@ server <- function(input, output, session) {
         
         abcd <- sort(abcd)
         updateSelectInput(session,"in6",choices = abcd)
+        updateSelectInput(session,"in7",choices = c(Choose='', abcd))
       })
     })
     observeEvent(input$extract, {
+      output$re_4 <- renderText('4bis')
       sendSweetAlert(
         session = session,
         btn_labels = NA,
@@ -231,26 +327,69 @@ server <- function(input, output, session) {
         closeOnClickOutside = F,
         type = "warning"
       )
-      groups <- cutree_rainette2(res, k = input$k)
-      bons <- which(groups[-length(groups)]==input$in2)
-      data$table_bon_group <- data$table[bons,]
-      output$bons <- renderText(length(bons))
-      data$table_bon_group <- as.data.frame(data$table_bon_group)
-      # data$table_bon_group[,2] <- as.character(data$table_bon_group[,2])
-      memory <- input$in6
-      for (i in 1:length(input$in6)) {
-        blabla <- str_detect(data$table_bon_group[,2] ,memory[i])
-        data$table_bon_group <- cbind(data$table_bon_group,blabla)
-      }
-      data$table_bon_group <- cbind(data$table_bon_group,F)
-      for (i in 1:length(input$in6)) {
-        for (j in 1:nrow(data$table_bon_group)) {
-          if (data$table_bon_group[j,(i+2)]){data$table_bon_group[j,(length(input$in6)+3)] <- T}
+      if(input$radio == 1){
+        groups <- cutree_rainette2(res, k = input$k)
+        bons <- which(groups[-length(groups)]==input$in2)
+        data$table_bon_group <- data$table[bons,]
+        output$bons <- renderText(length(bons))
+        data$table_bon_group <- as.data.frame(data$table_bon_group)
+        # data$table_bon_group[,2] <- as.character(data$table_bon_group[,2])
+        memory <- input$in6
+        for (i in 1:length(input$in6)) {
+          blabla <- str_detect(data$table_bon_group[,2] ,memory[i])
+          data$table_bon_group <- cbind(data$table_bon_group,blabla)
         }
+        data$table_bon_group <- cbind(data$table_bon_group,F)
+        for (i in 1:length(input$in6)) {
+          for (j in 1:nrow(data$table_bon_group)) {
+            if (data$table_bon_group[j,(i+2)]){data$table_bon_group[j,(length(input$in6)+3)] <- T}
+          }
+        }
+        data_final2 <- subset(data$table_bon_group,data$table_bon_group$F)
+        data_final2 <- data_final2[,1:2]
       }
-      data_final2 <- subset(data$table_bon_group,data$table_bon_group$F)
-      data_final2 <- data_final2[,1:2]
-      
+      if(input$radio == 2){
+        groups <- cutree_rainette2(res, k = input$k)
+        bons <- which(groups[-length(groups)]==input$in2)
+        data$table_bon_group <- data$table[bons,]
+        output$bons <- renderText(length(bons))
+        data$table_bon_group <- as.data.frame(data$table_bon_group)
+        # data$table_bon_group[,2] <- as.character(data$table_bon_group[,2])
+        memory <- input$in7
+        for (i in 1:length(input$in7)) {
+          blabla <- str_detect(data$table_bon_group[,2] ,memory[i])
+          data$table_bon_group <- cbind(data$table_bon_group,blabla)
+        }
+        data$table_bon_group <- cbind(data$table_bon_group,F)
+        for (i in 1:length(input$in7)) {
+          for (j in 1:nrow(data$table_bon_group)) {
+            if (data$table_bon_group[j,(i+2)]){data$table_bon_group[j,(length(input$in7)+3)] <- T}
+          }
+        }
+        data_final2 <- subset(data$table_bon_group,data$table_bon_group$F)
+        data_final2 <- data_final2[,1:2]
+        dense <- str_locate_all(data_final2[,2],input$in7)
+        print(dense)
+        nrow(dense[[1]])
+        n <- nrow(data_final2)
+        data_final2[,3] <- NA
+        for(j in 1:n){
+          test_dense <- F
+          if(nrow(dense[[j]])!=0){
+            k<-1
+            while (test_dense == F & k <= nrow(dense[[j]])) {
+              ss_dense <- str_sub(data_final2[,2][j],max(dense[[j]][k,1]-input$term_dist,1),dense[[j]][k,2]+input$term_dist)
+              k <- k+1
+              test_dense <- str_detect(ss_dense,input$txt_comp)
+            }
+          }
+          
+          data_final2[,3][j] <- test_dense
+          
+        }
+        data_final2 <- subset(data_final2,data_final2[,3]==T)
+        data_final2 <- data_final2[,1:2]
+      }
       data_final <- cbind(str_split(data_final2[,2], "---", simplify = TRUE))
       output$table2 <- renderTable(data_final)
       sendSweetAlert(
