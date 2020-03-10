@@ -189,7 +189,6 @@ server <- function(input, output, session) {
     output$re_4 <- renderText('4bis')
   })
   
-  output$v<- renderImage(list(src = "images/Icon-V3.png",contentType = "image/png",alt="Done!"),deleteFile=FALSE)
   # get_groups <- function(res) {
   #   groups <- purrr::imap_dfc(res$uce_groups, ~ paste(.y, .x, sep="."))
   #   colnames(groups) <- seq_along(groups)
@@ -366,10 +365,10 @@ server <- function(input, output, session) {
             if (data$table_bon_group[j,(i+2)]){data$table_bon_group[j,(length(input$in7)+3)] <- T}
           }
         }
+        txt_comp <- tolower(input$txt_comp)
         data_final2 <- subset(data$table_bon_group,data$table_bon_group$F)
         data_final2 <- data_final2[,1:2]
         dense <- str_locate_all(data_final2[,2],input$in7)
-        print(dense)
         nrow(dense[[1]])
         n <- nrow(data_final2)
         data_final2[,3] <- NA
@@ -380,7 +379,7 @@ server <- function(input, output, session) {
             while (test_dense == F & k <= nrow(dense[[j]])) {
               ss_dense <- str_sub(data_final2[,2][j],max(dense[[j]][k,1]-input$term_dist,1),dense[[j]][k,2]+input$term_dist)
               k <- k+1
-              test_dense <- str_detect(ss_dense,input$txt_comp)
+              test_dense <- str_detect(ss_dense,txt_comp)
             }
           }
           
